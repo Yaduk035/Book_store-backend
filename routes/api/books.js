@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const booksController = require("../../controllers/booksController");
 
+router.route("/recentbooks").get(booksController.getRecentBooks);
 router
   .route("/:id")
   .get(booksController.getBook)
