@@ -7,6 +7,9 @@ const bookSchema = new Schema(
       type: String,
       required: true,
     },
+    imageName: {
+      type: String,
+    },
     author: {
       type: String,
     },
@@ -30,6 +33,9 @@ const bookSchema = new Schema(
       type: String,
       required: true,
     },
+    ISBNnumber: {
+      type: String,
+    },
     year: {
       type: Number,
     },
@@ -41,6 +47,7 @@ const bookSchema = new Schema(
       type: Date,
       default: Date.now,
     },
+    image: String,
     updatedAt: {
       type: Date,
       default: Date.now,

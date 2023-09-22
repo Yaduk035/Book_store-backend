@@ -13,7 +13,8 @@ const handleLogin = async (req, res) => {
   const pwdMatch = await bcrypt.compare(pwd, foundUser.password);
   if (pwdMatch) {
     const roles = await Object.values(foundUser.roles).filter(Boolean);
-
+    const firstname = foundUser?.firstname;
+    const lastname = foundUser?.lastname;
     const accessToken = jwt.sign(
       {
         UserInfo: {
@@ -43,7 +44,7 @@ const handleLogin = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({ roles, accessToken });
+    res.json({ roles, accessToken, firstname, lastname });
   } else {
     res.status(401).json({ error: "Error" });
   }

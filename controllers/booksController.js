@@ -98,6 +98,7 @@ const editBook = async (req, res) => {
     if (!req.params.id) res.status(400).json({ error: "No id sent" });
     const {
       bookName,
+      imageName,
       author,
       genre,
       language,
@@ -107,11 +108,13 @@ const editBook = async (req, res) => {
       ISBNnumber,
       year,
       description,
+      image,
     } = req.body;
     const book = await Books.findByIdAndUpdate(
       req.params.id,
       {
         bookName,
+        imageName,
         author,
         genre,
         language,
@@ -121,6 +124,7 @@ const editBook = async (req, res) => {
         ISBNnumber,
         year,
         description,
+        image,
         updatedAt: Date.now(),
       },
       { new: true }

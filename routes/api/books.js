@@ -4,13 +4,13 @@ const booksController = require("../../controllers/booksController");
 
 router.route("/recentbooks").get(booksController.getRecentBooks);
 router
+  .route("/")
+  .get(booksController.getAllBooks)
+  .post(booksController.addBook);
+router
   .route("/:id")
   .get(booksController.getBook)
   .delete(booksController.deleteBook)
   .put(booksController.editBook);
-router
-  .route("/")
-  .get(booksController.getAllBooks)
-  .post(booksController.addBook);
 
 module.exports = router;
