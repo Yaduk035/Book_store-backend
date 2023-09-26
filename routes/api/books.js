@@ -5,6 +5,7 @@ const booksController = require("../../controllers/booksController");
 router.route("/recentbooks").get(booksController.getRecentBooks);
 router.route("/wishlist/:id").put(booksController.addToWishlist);
 router.route("/rent/:id").put(booksController.addToRentlist);
+router.route("/review/:id").put(booksController.addReview);
 
 router
   .route("/")
