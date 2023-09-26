@@ -26,6 +26,14 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    books: {
+      rented: {
+        type: String,
+      },
+      wishlisted: {
+        type: String,
+      },
+    },
     createdAt: {
       type: Date,
       default: Date.now,

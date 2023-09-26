@@ -1,4 +1,5 @@
 const Books = require("../models/Book");
+const Users = require("../models/User");
 
 const getRecentBooks = async (req, res) => {
   try {
@@ -85,7 +86,7 @@ const addBook = async (req, res) => {
       year,
       description,
     });
-    res.status(201).json({ message: "Book created!" });
+    res.status(201).json(book);
     console.log(book);
   } catch (error) {
     console.log(error);
@@ -95,7 +96,7 @@ const addBook = async (req, res) => {
 
 const editBook = async (req, res) => {
   try {
-    if (!req.params.id) res.status(400).json({ error: "No id sent" });
+    if (!req.params.id) return res.status(400).json({ error: "No id sent" });
     const {
       bookName,
       imageName,
@@ -139,6 +140,65 @@ const editBook = async (req, res) => {
     res.status(500).json({ error: "server error" });
   }
 };
+
+const addToWishlist = async (req, res) => {
+  try {
+    if (!req.params.id)
+      return res.status(400).json({ error: "No id sent with req." });
+    const { wishlisted } = req.body;
+    const wishlistedUser = wishlisted;
+    const book = await Books.findByIdAndUpdate(req.params.id, {
+      $set: { "users.wishlisted": wishlistedUser },
+    }).exec();
+    if (!book)
+      return res
+        .status(400)
+        .json({ error: `No book with id ${req.params.id}found.` });
+    const user = await Users.findByIdAndUpdate(wishlistedUser, {
+      $set: { "books.wishlisted": req.params.id },
+    }).exec();
+    if (!user)
+      return res
+        .status(400)
+        .json({ error: `No user with id ${wishlistedUser} found.` });
+    res.status(201).json({
+      message: `user with id${wishlistedUser} and book with id${req.params.id} wishlisted.`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
+const addToRentlist = async (req, res) => {
+  try {
+    if (!req.params.id)
+      return res.status(400).json({ error: "No id sent with req." });
+    const { rented } = req.body;
+    const rentedUser = rented;
+    const book = await Books.findByIdAndUpdate(req.params.id, {
+      $set: { "users.rented": rentedUser },
+    }).exec();
+    if (!book)
+      return res
+        .status(400)
+        .json({ error: `No book with id ${req.params.id}found.` });
+    const user = await Users.findByIdAndUpdate(rentedUser, {
+      $set: { "books.rented": req.params.id },
+    }).exec();
+    if (!user)
+      return res
+        .status(400)
+        .json({ error: `No user with id ${rentedUser}found.` });
+    res.status(201).json({
+      message: `user with id${rentedUser} and book with id${req.params.id} rented.`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
 module.exports = {
   getBook,
   getAllBooks,
@@ -146,4 +206,6 @@ module.exports = {
   deleteBook,
   addBook,
   editBook,
+  addToWishlist,
+  addToRentlist,
 };

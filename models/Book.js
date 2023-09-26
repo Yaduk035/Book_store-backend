@@ -43,6 +43,14 @@ const bookSchema = new Schema(
       type: String,
       required: true,
     },
+    users: {
+      rented: {
+        type: String,
+      },
+      wishlisted: {
+        type: String,
+      },
+    },
     createdAt: {
       type: Date,
       default: Date.now,

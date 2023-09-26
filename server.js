@@ -16,11 +16,16 @@ const multer = require("multer");
 const { deleteImage } = require("./controllers/imageController");
 const fs = require("fs");
 const axios = require("axios");
+const bodyParser = require("body-parser");
 
 connectDB();
 
 app.use(logger);
 
+app.use(bodyParser.json({ limit: "1mb" }));
+app.use(
+  express.urlencoded({ limit: "1mb", extended: true, parameterLimit: 50000 })
+);
 app.use(credentials);
 
 // app.use(cors());
