@@ -1,5 +1,6 @@
 const Books = require("../models/Book");
 const Users = require("../models/User");
+const BookIdSchema = require("../models/bookReviews");
 
 const getRecentBooks = async (req, res) => {
   try {
@@ -269,26 +270,30 @@ const deleteFromRentlist = async (req, res) => {
 
 const addReview = async (req, res) => {
   try {
-    if (!req.params.id)
-      return res.status(400).json({ error: "No id sent with req." });
-    const { username, rating, comment } = req.body;
-    const review = await Books.findByIdAndUpdate(req.params.id, {
-      $set: {
-        [`reviews.${username}`]: {
-          rating: rating,
-          comment: comment,
-        },
-      },
-    });
-    if (!review)
-      return res.status(400).json({ error: "error in adding review." });
-    res.status(201).json({ message: "review added" });
+    const { userId, rating, comment } = req.body;
+    const bookId = req.params.id;
+
+    const newReview = {
+      userId,
+      rating,
+      comment,
+    };
+
+    const updatedBook = await BookIdSchema.findOneAndUpdate(
+      { bookId },
+      { $push: { reviews: newReview } },
+      { new: true, upsert: true }
+    );
+
+    if (updatedBook === null) {
+      console.log("no document created");
+    }
+    res.status(200).json({ message: "comment added" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error." });
   }
 };
-
 module.exports = {
   getBook,
   getAllBooks,
