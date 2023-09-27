@@ -7,7 +7,7 @@ router.route("/rent/:id").put(booksController.addToRentlist);
 router.route("/removerent/:id").delete(booksController.addToRentlist);
 router.route("/review/:id").put(booksController.addReview);
 router.route("/wishlist/:id").post(booksController.addToWishlist);
-router.route("/delwishlist/:id").delete(booksController.deleteFromWishlist);
+router.route("/wishlist/:id").delete(booksController.deleteFromWishlist);
 
 router
   .route("/")
