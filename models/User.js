@@ -26,14 +26,8 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    books: {
-      rented: {
-        type: String,
-      },
-      wishlisted: {
-        type: String,
-      },
-    },
+    wishlist: [String],
+    rentlist: [String],
     createdAt: {
       type: Date,
       default: Date.now,
@@ -44,7 +38,7 @@ const userSchema = new Schema(
     },
     refreshToken: String,
   },
-  { timestamps: true } // This option automatically manages createdAt and updatedAt fields
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);

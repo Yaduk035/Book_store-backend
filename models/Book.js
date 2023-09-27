@@ -44,23 +44,15 @@ const bookSchema = new Schema(
       required: true,
     },
     users: {
-      rented: {
-        type: String,
-      },
-      wishlisted: {
-        type: String,
-      },
+      wishlist: [String],
+      rentlist: [String],
     },
-    reviews: {
-      username: {
-        rating: {
-          type: Number,
-        },
-        comment: {
-          type: String,
-        },
-      },
-    },
+    // reviews: {
+    //   username: {
+    //     wishlist: [String],
+    //     rentlist: [String],
+    //   },
+    // },
     createdAt: {
       type: Date,
       default: Date.now,

@@ -141,63 +141,165 @@ const editBook = async (req, res) => {
   }
 };
 
-const addToWishlist = async (req, res) => {
+const addToRentlist = async (req, res) => {
   try {
-    if (!req.params.id)
-      return res.status(400).json({ error: "No id sent with req." });
-    const { wishlisted } = req.body;
-    const wishlistedUser = wishlisted;
-    const book = await Books.findByIdAndUpdate(req.params.id, {
-      $set: { "users.wishlisted": wishlistedUser },
-    }).exec();
-    if (!book)
-      return res
-        .status(400)
-        .json({ error: `No book with id ${req.params.id}found.` });
-    const user = await Users.findByIdAndUpdate(wishlistedUser, {
-      $set: { "books.wishlisted": req.params.id },
-    }).exec();
-    if (!user)
-      return res
-        .status(400)
-        .json({ error: `No user with id ${wishlistedUser} found.` });
-    res.status(201).json({
-      message: `user with id${wishlistedUser} and book with id${req.params.id} wishlisted.`,
-    });
+    const bookId = req.params.id;
+    const rentedUsers = req.body.users.rented;
+
+    const updatedBook = await Books.findByIdAndUpdate(
+      bookId,
+      {
+        $addToSet: { "users.rentlist": { $each: rentedUsers } },
+      },
+      { new: true }
+    );
+    res.json(updatedBook);
+
+    // return res.status(201).json({ message: "user created for wishlist" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error." });
   }
 };
 
-const addToRentlist = async (req, res) => {
+const removeFromRentlist = async (req, res) => {
   try {
-    if (!req.params.id)
-      return res.status(400).json({ error: "No id sent with req." });
-    const { rented } = req.body;
-    const rentedUser = rented;
-    const book = await Books.findByIdAndUpdate(req.params.id, {
-      $set: { "users.rented": rentedUser },
-    }).exec();
-    if (!book)
+    const bookId = req.params.id;
+    const userIdremove = req.body.users.rented;
+
+    const updatedBook = await Books.findByIdAndUpdate(
+      bookId,
+      {
+        $pull: { users: { rentlist: userIdremove } },
+      },
+      { new: true }
+    );
+
+    if (!updatedBook) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+
+    res.json(updatedBook);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const addToWishlist = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const bookId = req.params.id;
+
+    if (!bookId) {
       return res
         .status(400)
-        .json({ error: `No book with id ${req.params.id}found.` });
-    const user = await Users.findByIdAndUpdate(rentedUser, {
-      $set: { "books.rented": req.params.id },
-    }).exec();
-    if (!user)
+        .json({ error: "User Id doesn not contain any data." });
+    }
+
+    const book = await Books.findById(bookId);
+    const user = await Users.findById(userId);
+
+    if (!book.users.wishlist.includes(userId)) {
+      book.users.wishlist.push(userId);
+      await book.save();
+    }
+
+    if (!user.wishlist.includes(bookId)) {
+      user.wishlist.push(bookId);
+      await user.save();
+    }
+    res.status(200).json({ message: "user added to wishlist" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "server error." });
+  }
+};
+
+const deleteFromWishlist = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const bookId = req.params.id;
+
+    if (!bookId) {
       return res
         .status(400)
-        .json({ error: `No user with id ${rentedUser}found.` });
-    res.status(201).json({
-      message: `user with id${rentedUser} and book with id${req.params.id} rented.`,
-    });
+        .json({ error: "User Id doesn not contain any data." });
+    }
+
+    const book = await Books.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    book.users.wishlist = book.users.wishlist.filter(
+      (id) => id.toString() !== userId
+    );
+    await book.save();
+    res.status(200).json({ message: "id removed from wishlist" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error." });
   }
 };
+
+// const addToWishlist = async (req, res) => {
+//   try {
+//     if (!req.params.id)
+//       return res.status(400).json({ error: "No id sent with req." });
+//     const { wishlisted } = req.body;
+//     const wishlistedUser = wishlisted;
+//     const book = await Books.findByIdAndUpdate(req.params.id, {
+//       $set: { "users.wishlisted": wishlistedUser },
+//     }).exec();
+//     if (!book)
+//       return res
+//         .status(400)
+//         .json({ error: `No book with id ${req.params.id}found.` });
+//     const user = await Users.findByIdAndUpdate(wishlistedUser, {
+//       $set: { "books.wishlisted": req.params.id },
+//     }).exec();
+//     if (!user)
+//       return res
+//         .status(400)
+//         .json({ error: `No user with id ${wishlistedUser} found.` });
+//     res.status(201).json({
+//       message: `user with id${wishlistedUser} and book with id${req.params.id} wishlisted.`,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Server error." });
+//   }
+// };
+
+// const addToRentlist = async (req, res) => {
+//   try {
+//     if (!req.params.id)
+//       return res.status(400).json({ error: "No id sent with req." });
+//     const { rented } = req.body;
+//     const rentedUser = rented;
+//     const book = await Books.findByIdAndUpdate(req.params.id, {
+//       $set: { "users.rented": rentedUser },
+//     }).exec();
+//     if (!book)
+//       return res
+//         .status(400)
+//         .json({ error: `No book with id ${req.params.id}found.` });
+//     const user = await Users.findByIdAndUpdate(rentedUser, {
+//       $set: { "books.rented": req.params.id },
+//     }).exec();
+//     if (!user)
+//       return res
+//         .status(400)
+//         .json({ error: `No user with id ${rentedUser}found.` });
+//     res.status(201).json({
+//       message: `user with id${rentedUser} and book with id${req.params.id} rented.`,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Server error." });
+//   }
+// };
 
 const addReview = async (req, res) => {
   try {
@@ -230,5 +332,7 @@ module.exports = {
   editBook,
   addToWishlist,
   addToRentlist,
+  removeFromRentlist,
   addReview,
+  deleteFromWishlist,
 };
