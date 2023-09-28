@@ -1,3 +1,4 @@
+const { User } = require("../config/userRoles");
 const Books = require("../models/Book");
 const Users = require("../models/User");
 const BookIdSchema = require("../models/bookReviews");
@@ -6,7 +7,7 @@ const getRecentBooks = async (req, res) => {
   try {
     const books = await Books.find()
       .sort({ createdAt: -1 }) // Sort by createdAt in descending order (most recent first)
-      .limit(4) // Limit the result to the top 4 entries
+      .limit(6) // Limit the result to the top 4 entries
       .exec();
 
     if (!books || books.length === 0) {
@@ -86,6 +87,7 @@ const addBook = async (req, res) => {
       ISBNnumber,
       year,
       description,
+      createdAt: Date.now(),
     });
     res.status(201).json(book);
     console.log(book);
@@ -176,11 +178,18 @@ const deleteFromWishlist = async (req, res) => {
   try {
     const userId = req.body.userId;
     const bookId = req.params.id;
+    console.log(userId);
 
     if (!bookId) {
       return res
         .status(400)
         .json({ error: "User Id doesn not contain any data." });
+    }
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "request body doesnot contain userId" });
     }
 
     const book = await Books.findById(bookId);
@@ -294,6 +303,35 @@ const addReview = async (req, res) => {
     res.status(500).json({ error: "Server error." });
   }
 };
+
+const userWishlist = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) return res.status(400).json({ error: "No user id sent" });
+    const userData = await Users.findById(userId).exec();
+    if (!userData) {
+      return res
+        .status(400)
+        .json({ error: `No user with id ${userId} found.` });
+    }
+    const user = await Users.findById(userId);
+    const wishlist = user.wishlist;
+    const wishlistData = [];
+
+    for (const itemId of wishlist) {
+      const book = await Books.findById(itemId);
+      if (book) {
+        wishlistData.push(book);
+      }
+    }
+
+    res.status(200).json(wishlistData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
 module.exports = {
   getBook,
   getAllBooks,
@@ -306,4 +344,5 @@ module.exports = {
   deleteFromWishlist,
   deleteFromRentlist,
   addReview,
+  userWishlist,
 };

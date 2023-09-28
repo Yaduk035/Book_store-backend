@@ -14,6 +14,7 @@ const handleLogin = async (req, res) => {
   if (pwdMatch) {
     const roles = await Object.values(foundUser.roles).filter(Boolean);
     const firstname = foundUser?.firstname;
+    const userId = foundUser?._id;
     const lastname = foundUser?.lastname;
     const accessToken = jwt.sign(
       {
@@ -44,7 +45,7 @@ const handleLogin = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({ roles, accessToken, firstname, lastname });
+    res.json({ roles, accessToken, firstname, lastname, userId });
   } else {
     res.status(401).json({ error: "Error" });
   }
