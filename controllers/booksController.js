@@ -228,16 +228,16 @@ const addToRentlist = async (req, res) => {
     const book = await Books.findById(bookId);
     const user = await Users.findById(userId);
 
-    if (!book.users.wishlist.includes(userId)) {
-      book.users.wishlist.push(userId);
+    if (!book.users.rentlist.includes(userId)) {
+      book.users.rentlist.push(userId);
       await book.save();
     }
 
-    if (!user.wishlist.includes(bookId)) {
-      user.wishlist.push(bookId);
+    if (!user.rentlist.includes(bookId)) {
+      user.rentlist.push(bookId);
       await user.save();
     }
-    res.status(200).json({ message: "user added to wishlist" });
+    res.status(200).json({ message: "user added to rentlist" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "server error." });
@@ -270,22 +270,40 @@ const deleteFromRentlist = async (req, res) => {
     user.wishlist = user.wishlist.filter((id) => id.toString() !== bookId);
     await user.save();
 
-    res.status(200).json({ message: "id removed from wishlist" });
+    res.status(200).json({ message: "id removed from rentlist" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error." });
   }
 };
 
-const addReview = async (req, res) => {
+const getReview = async (req, res) => {
   try {
     const { userId, rating, comment } = req.body;
+    const bookId = req.params.id;
+
+    const bookComments = await BookIdSchema.findOne({ bookId });
+
+    if (!bookComments)
+      return res.status(400).json({ error: "No comments for this book found" });
+
+    res.status(200).json(bookComments);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+const addReview = async (req, res) => {
+  try {
+    const { userId, rating, comment, commentTitle } = req.body;
     const bookId = req.params.id;
 
     const newReview = {
       userId,
       rating,
       comment,
+      commentTitle,
+      createdAt: Date.now(),
     };
 
     const updatedBook = await BookIdSchema.findOneAndUpdate(
@@ -298,6 +316,31 @@ const addReview = async (req, res) => {
       console.log("no document created");
     }
     res.status(200).json({ message: "comment added" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
+const deleteReview = async (req, res) => {
+  try {
+    const reviewId = req.body.reviewId;
+    const bookId = req.params.id;
+
+    const book = await BookIdSchema.findOneAndUpdate({ bookId });
+    if (!book) return res.status(400).json({ error: "Book not found" });
+
+    const reviewIndex = book.reviews.findIndex(
+      (review) => review._id.toString() === reviewId
+    );
+
+    if (reviewIndex === -1) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+    book.reviews.splice(reviewIndex, 1);
+    await book.save();
+
+    res.status(200).json({ message: "comment deleted" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server error." });
@@ -332,6 +375,34 @@ const userWishlist = async (req, res) => {
   }
 };
 
+const userRentlist = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) return res.status(400).json({ error: "No user id sent" });
+    const userData = await Users.findById(userId).exec();
+    if (!userData) {
+      return res
+        .status(400)
+        .json({ error: `No user with id ${userId} found.` });
+    }
+    const user = await Users.findById(userId);
+    const rentlist = user.rentlist;
+    const rentlistData = [];
+
+    for (const itemId of rentlist) {
+      const book = await Books.findById(itemId);
+      if (book) {
+        rentlistData.push(book);
+      }
+    }
+
+    res.status(200).json(rentlistData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
 module.exports = {
   getBook,
   getAllBooks,
@@ -343,6 +414,9 @@ module.exports = {
   addToRentlist,
   deleteFromWishlist,
   deleteFromRentlist,
+  getReview,
   addReview,
+  deleteReview,
   userWishlist,
+  userRentlist,
 };
