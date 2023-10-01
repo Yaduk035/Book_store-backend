@@ -50,6 +50,7 @@ app.use("/auth", require("./routes/auth"));
 app.use("/refresh", require("./routes/refresh"));
 app.use("/logout", require("./routes/logout"));
 app.use("/books", require("./routes/api/books"));
+app.use("/edituser", require("./routes/editUser"));
 
 /////////////////////////////////////////////
 // const storage = multer.diskStorage({
