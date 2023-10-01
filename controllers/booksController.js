@@ -66,6 +66,7 @@ const addBook = async (req, res) => {
   try {
     const {
       bookName,
+      rentAmount,
       author,
       genre,
       language,
@@ -78,6 +79,7 @@ const addBook = async (req, res) => {
     } = req.body;
     const book = await Books.create({
       bookName: bookName,
+      rentAmount,
       author,
       genre: genre,
       language,
@@ -102,6 +104,8 @@ const editBook = async (req, res) => {
     if (!req.params.id) return res.status(400).json({ error: "No id sent" });
     const {
       bookName,
+      rentAmount,
+      avgRating,
       imageName,
       author,
       genre,
@@ -118,6 +122,8 @@ const editBook = async (req, res) => {
       req.params.id,
       {
         bookName,
+        rentAmount,
+        avgRating,
         imageName,
         author,
         genre,
@@ -279,7 +285,6 @@ const deleteFromRentlist = async (req, res) => {
 
 const getReview = async (req, res) => {
   try {
-    const { userId, rating, comment } = req.body;
     const bookId = req.params.id;
 
     const bookComments = await BookIdSchema.findOne({ bookId });
@@ -326,8 +331,8 @@ const deleteReview = async (req, res) => {
   try {
     const reviewId = req.body.reviewId;
     const bookId = req.params.id;
-
-    const book = await BookIdSchema.findOneAndUpdate({ bookId });
+    if (!reviewId) return res.status(400).json({ error: "No reviewId sent" });
+    const book = await BookIdSchema.findOne({ bookId });
     if (!book) return res.status(400).json({ error: "Book not found" });
 
     const reviewIndex = book.reviews.findIndex(

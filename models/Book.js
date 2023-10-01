@@ -7,6 +7,12 @@ const bookSchema = new Schema(
       type: String,
       required: true,
     },
+    avgRating: {
+      type: Number,
+    },
+    rentAmount: {
+      type: Number,
+    },
     imageName: {
       type: String,
     },
