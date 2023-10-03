@@ -268,12 +268,12 @@ const deleteFromRentlist = async (req, res) => {
       return res.status(404).json({ message: "Book not found" });
     }
 
-    book.users.wishlist = book.users.wishlist.filter(
+    book.users.rentlist = book.users.rentlist.filter(
       (id) => id.toString() !== userId
     );
     await book.save();
 
-    user.wishlist = user.wishlist.filter((id) => id.toString() !== bookId);
+    user.rentlist = user.rentlist.filter((id) => id.toString() !== bookId);
     await user.save();
 
     res.status(200).json({ message: "id removed from rentlist" });
@@ -408,6 +408,34 @@ const userRentlist = async (req, res) => {
   }
 };
 
+const bookRentlist = async (req, res) => {
+  try {
+    const bookId = req.params.id;
+    if (!bookId) return res.status(400).json({ error: "No book id sent" });
+    const bookData = await Books.findById(bookId).exec();
+    if (!bookData) {
+      return res
+        .status(400)
+        .json({ error: `No book with id ${bookId} found.` });
+    }
+    const book = await Books.findById(bookId);
+    const rentlist = book.users.rentlist;
+    const rentlistData = [];
+
+    for (const itemId of rentlist) {
+      const user = await Users.findById(itemId);
+      if (user) {
+        rentlistData.push(user);
+      }
+    }
+
+    res.status(200).json(rentlistData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
 module.exports = {
   getBook,
   getAllBooks,
@@ -424,4 +452,5 @@ module.exports = {
   deleteReview,
   userWishlist,
   userRentlist,
+  bookRentlist,
 };

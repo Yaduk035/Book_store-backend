@@ -13,6 +13,7 @@ router.route("/reviews/:id").get(booksController.getReview);
 router.route("/reviews/:id").delete(booksController.deleteReview);
 router.route("/userwishlist/:id").get(booksController.userWishlist);
 router.route("/userrentlist/:id").get(booksController.userRentlist);
+router.route("/bookrentlist/:id").get(booksController.bookRentlist);
 
 router
   .route("/")
