@@ -52,6 +52,10 @@ app.use("/logout", require("./routes/logout"));
 app.use("/books", require("./routes/api/books"));
 app.use("/edituser", require("./routes/editUser"));
 
+app.use(verifyJWT);
+//Users by id
+app.use("/users", require("./routes/api/users"));
+
 /////////////////////////////////////////////
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -107,10 +111,6 @@ app.use("/edituser", require("./routes/editUser"));
 // });
 
 //////////////////////////////////////
-
-app.use(verifyJWT);
-//Users by id
-app.use("/users", require("./routes/api/users"));
 
 app.all("*", (req, res) => {
   res.status(404);
