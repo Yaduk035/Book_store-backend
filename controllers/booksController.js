@@ -77,6 +77,12 @@ const addBook = async (req, res) => {
       year,
       description,
     } = req.body;
+
+    if (!bookName || !description || !genre || !availabilityStatus || !language)
+      return res
+        .status(400)
+        .json({ error: "Some inputs fields are left empty." });
+
     const book = await Books.create({
       bookName: bookName,
       rentAmount,

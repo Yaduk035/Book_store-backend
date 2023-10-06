@@ -49,10 +49,10 @@ app.use("/check", require("./routes/api/userCheck"));
 app.use("/auth", require("./routes/auth"));
 app.use("/refresh", require("./routes/refresh"));
 app.use("/logout", require("./routes/logout"));
+app.use(verifyJWT);
 app.use("/books", require("./routes/api/books"));
 app.use("/edituser", require("./routes/editUser"));
 
-app.use(verifyJWT);
 //Users by id
 app.use("/users", require("./routes/api/users"));
 
