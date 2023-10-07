@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const booksController = require("../../controllers/booksController");
 
+router.route("/randombook").get(booksController.getRandomBook);
 router.route("/recentbooks").get(booksController.getRecentBooks);
 router.route("/review/:id").put(booksController.addReview);
 router.route("/wishlist/:id").post(booksController.addToWishlist);

@@ -47,6 +47,30 @@ const getBook = async (req, res) => {
   }
 };
 
+const getRandomBook = async (req, res) => {
+  try {
+    const count = await Books.countDocuments().exec();
+    if (count === 0) {
+      return res.status(204).json("No books found");
+    }
+
+    // Generate a random index between 0 and count-1
+    const randomIndex = Math.floor(Math.random() * count);
+
+    // Fetch a random book using the random index
+    const randomBook = await Books.findOne().skip(randomIndex).exec();
+
+    if (!randomBook) {
+      return res.status(204).json("No books found");
+    }
+
+    res.status(200).json(randomBook);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 const deleteBook = async (req, res) => {
   try {
     if (!req.params.id) return res.status(204).json({ error: "No id sent." });
@@ -459,4 +483,5 @@ module.exports = {
   userWishlist,
   userRentlist,
   bookRentlist,
+  getRandomBook,
 };

@@ -1,16 +1,5 @@
 const User = require("../models/User");
 
-// const checkUsername = async (req, res) => {
-//   try {
-//     const username = req.params.username;
-//     const user = await User.findOne({ username: username });
-//     res.json({ exists: !!user });
-//   } catch (err) {
-//     res.sendStatus(500);
-//     console.error(err);
-//   }
-// };
-
 const checkEmail = async (req, res) => {
   try {
     const emailId = req.params.email;
