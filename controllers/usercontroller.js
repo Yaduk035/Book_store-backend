@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const path = require("path");
 
 const getAllUsers = async (req, res) => {
   try {
@@ -45,9 +46,55 @@ const getUser = async (req, res) => {
   }
 };
 
+const getReqLogs = async (req, res, next) => {
+  try {
+    const options = {
+      root: path.join(__dirname, "..", "logs"),
+    };
+    if (!options)
+      return res.status(400).json({ Message: "No req logs found." });
+
+    const fileName = "reqlog.txt";
+    res.sendFile(fileName, options, function (err) {
+      if (err) {
+        next(err);
+      } else {
+        console.log("Sent:", fileName);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const getErrorLogs = async (req, res, next) => {
+  try {
+    const options = {
+      root: path.join(__dirname, "..", "logs"),
+    };
+    if (!options)
+      return res.status(400).json({ Message: "No req logs found." });
+
+    const fileName = "errorLogs.txt";
+    res.sendFile(fileName, options, function (err) {
+      if (err) {
+        next(err);
+      } else {
+        console.log("Sent:", fileName);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   getAllUsers,
   deleteUser,
   getUser,
   deleteUserError,
+  getReqLogs,
+  getErrorLogs,
 };
